@@ -1,0 +1,37 @@
+version: '3' 
+services:
+  mongo:
+    image: mongo:3.6
+  web:
+    build: .
+    ports:
+     - "8080:8080"
+    environment:
+     - MONGODB_URI=mongodb://mongo:27017/test 
+    links:
+     - mongo 
+    depends_on: 
+     - mongo 
+    volumes:
+     - .:/starter
+     - /starter/node_modules
+     
+     # .travis.yml file
+language: node_js
+node_js:
+  - "8"
+services: mongodb
+cache:
+  directories:
+    - "node_modules"
+sudo: false
+install:
+  - npm install
+script:
+  - npm test
+deploy:
+  - provider: script
+    skip_cleanup: true
+    script: chmod +x ./deploy.sh && ./deploy.sh
+    on:
+      branch: master
